@@ -9,7 +9,7 @@ A native homebrew port of ZUN's 2007 bullet hell danmaku classic **Touhou 10: Mo
 
 Mountain of Faith is my favourite Touhou game, so it gets the port it deserves. This build runs the clean C++ reimplementation from [YomotsuHisami/th10](https://github.com/YomotsuHisami/th10), compiled to native ARM64 through the wasm2c runtime and driven by an SDL2 host on an OpenGL ES 3 context — no Linux, Box64 or Wine involved.
 
-Because the game logic is a clean reimplementation rather than a decompiled EXE, this port has **none of the bad-decompile bugs** that haunt th08-style efforts — and because everything runs natively instead of inside a v86/browser layer, it has **none of the th10_web-style lag** either: just a locked 60 FPS on Horizon.
+Because the game logic is a clean reimplementation rather than a decompiled EXE, this port has **none of the bad-decompile bugs** that haunt th08-style efforts
 
 Companion to the [Touhou 6](https://github.com/saekaze/th06-switch), [Touhou 7](https://github.com/saekaze/th07-switch) and [Touhou 8](https://github.com/saekaze/th08-switch) Switch ports, with the same `touhou10.nro` + `sd:/switch/th10/` layout.
 
