@@ -1,0 +1,24 @@
+# --- switch port ---
+# cmake build trees
+build/
+build-switch/
+# build products
+*.nro
+*.nro.sha256
+*.nacp
+*.elf
+
+# game data must never be committed
+th10.dat
+th10c.dat
+thbgm.dat
+msgothic.ttc
+th10.cfg
+score.dat
+th10_*.rpy
+
+# test runs
+th10_save*
+replay_save/
+*.wav
+snapshot/

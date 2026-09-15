@@ -1,0 +1,61 @@
+name: Build Switch NRO
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install host build tools
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq cmake ninja-build git python3
+
+      - name: Build
+        env:
+          DEVKITPRO: /opt/devkitpro
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          chmod +x scripts/build_switch.sh
+          ./scripts/build_switch.sh
+
+      - name: Show result
+        run: ls -lh build-switch/touhou10.nro
+
+      - name: Upload NRO
+        uses: actions/upload-artifact@v4
+        with:
+          name: touhou10-switch
+          path: build-switch/touhou10.nro
+          if-no-files-found: error
+
+      # Tagged pushes additionally publish the NRO as a release asset.
+      - name: Checksum
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cd build-switch
+          sha256sum touhou10.nro > touhou10.nro.sha256
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build-switch/touhou10.nro
+            build-switch/touhou10.nro.sha256
+          body_path: RELEASE_NOTES.md
+          fail_on_unmatched_files: true
