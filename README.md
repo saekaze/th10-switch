@@ -3,7 +3,7 @@
 
 ![Platform](https://img.shields.io/badge/Platform-Nintendo%20Switch-e60012?style=for-the-badge&logo=nintendoswitch&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Fully%20Playable-brightgreen?style=for-the-badge)
-![License](https://img.shields.io/badge/License-CC0%201.0-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/Port%20Code-CC0%201.0-blue?style=for-the-badge)
 
 A native homebrew port of ZUN's 2007 bullet hell danmaku classic **Touhou 10: Mountain of Faith** for the **Nintendo Switch** (Horizon OS).
 
@@ -151,3 +151,5 @@ On Horizon the wasm linear memory uses a malloc backend (`WASM_RT_USE_MMAP=0`); 
 * **wabt project** — the wasm2c compiler and runtime.
 * **Switchbrew & devkitPro Team** — the open-source `libnx` SDK and Switch toolchain.
 * Port developed with AI assistance.
+
+**Licensing:** the Switch host code (`src/`, `platform/`, `scripts/`, `tests/`, `switch_include/`, build files) is CC0 1.0 (see `LICENSE`). `wasm2c/th10_wasm.c` / `th10_wasm.h` are generated from the TH10 game module by YomotsuHisami, which does not state a licence — that code stays theirs and is not covered by `LICENSE` (the only Switch change in it is the hook that calls `src/host_resample.cpp`). The wasm2c runtime (`wasm2c/wasm-rt*`) is Apache-2.0, see the file headers.
