@@ -6,6 +6,11 @@ on:
     tags: ['v*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Publish a release with this tag (e.g. v1.00d-r4); empty = just build"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -45,15 +50,16 @@ jobs:
 
       # Tagged pushes additionally publish the NRO as a release asset.
       - name: Checksum
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || inputs.release_tag != ''
         run: |
           cd build-switch
           sha256sum touhou10.nro > touhou10.nro.sha256
 
       - name: Attach to release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || inputs.release_tag != ''
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
           files: |
             build-switch/touhou10.nro
             build-switch/touhou10.nro.sha256

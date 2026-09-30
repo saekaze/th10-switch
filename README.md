@@ -9,9 +9,19 @@ A native homebrew port of ZUN's 2007 bullet hell danmaku classic **Touhou 10: Mo
 
 Mountain of Faith is my favourite Touhou game, so it gets the port it deserves. This build runs the clean C++ reimplementation from [YomotsuHisami/th10](https://github.com/YomotsuHisami/th10), compiled to native ARM64 through the wasm2c runtime and driven by an SDL2 host on an OpenGL ES 3 context — no Linux, Box64 or Wine involved.
 
-Because the game logic is a clean reimplementation rather than a decompiled EXE, this port has **none of the bad-decompile bugs** that haunt th08-style efforts
+Because the game logic is a clean reimplementation rather than a decompiled EXE, this port has **none of the bad-decompile bugs**
 
-Companion to the [Touhou 6](https://github.com/saekaze/th06-switch), [Touhou 7](https://github.com/saekaze/th07-switch) and [Touhou 8](https://github.com/saekaze/th08-switch) Switch ports, with the same `touhou10.nro` + `sd:/switch/th10/` layout.
+Companion to the [Touhou 6](https://github.com/saekaze/th06-switch), [Touhou 7](https://github.com/saekaze/th07-switch), [Touhou 8](https://github.com/saekaze/th08-switch), [Touhou 9](https://github.com/saekaze/th09-switch) and [Touhou 11](https://github.com/saekaze/th11-switch) Switch ports, with the same `touhou10.nro` + `sd:/switch/touhou/touhou10/` layout.
+
+---
+
+## 🆕 What's New in 1.00a-r5
+
+* 🚀 **Performance improvements:** busy scenes and heavy spell cards run smoother (Kanako's last spell card is the easiest place to see it), and the game no longer drops to 59.8 FPS or judders after a continue.
+* 💬 **No more lag when skipping dialogue** — each line of text is now drawn about 40× faster, with identical text.
+* 🛠️ **Stability improvements:** float math now rounds exactly like the PC build, and if `th10.dat` isn't found the port shows where it looked instead of closing.
+* 🎮 **Controls like the other Touhou ports:** the in-game **Key Config** works with the Switch buttons, ZL/ZR act as L/R, and the D-Pad and sticks only move. The default layout is the same as every other port (B shoot, A bomb, L/ZL focus, R/ZR skip, + pause).
+* 📁 **One folder for all Touhou ports:** `sd:/switch/touhou/touhou10/` is recommended; the NRO's own folder is always checked first, and the old locations still work.
 
 ---
 
@@ -19,7 +29,7 @@ Companion to the [Touhou 6](https://github.com/saekaze/th06-switch), [Touhou 7](
 
 * ⬛ **OLED-Friendly Pillarboxing:** the original 640×480 playfield is centred with pure black (`#000000`) bars and an aspect-correct upscale.
 * 🔊 **Full Audio:** sound effects plus BGM streamed from `thbgm.dat` through SDL's audio backend at 48 kHz stereo.
-* 🎮 **Fixed, Sane Controls:** Joy-Con (handheld, grip, detached) and Pro Controller via SDL2's gamepad API.
+* 🎮 **Sane, Remappable Controls:** Joy-Con (handheld, grip, detached) and Pro Controller with the same default layout as every other Touhou Switch port (B shoot, A bomb, L/ZL focus, R/ZR skip, + pause); the in-game **Key Config** can rebind them.
 * 🌏 **Language-Aware Title:** hbmenu shows the original Japanese title (`東方風神録　～ Mountain of Faith`) on consoles set to 日本語 and the romanised one everywhere else, filled across all 16 NACP language slots.
 * 💾 **Saves Next to the Data:** `th10.cfg`, `score.dat`, replays (`th10_01.rpy` …) and snapshots are written into the same SD folder the game loaded from. Without `msgothic.ttc`, the port falls back to the Switch shared system fonts.
 
@@ -33,10 +43,10 @@ Companion to the [Touhou 6](https://github.com/saekaze/th06-switch), [Touhou 7](
 
 1. Ensure your Nintendo Switch is running custom firmware (Atmosphère CFW).
 2. Download the latest `touhou10.nro` from the [Releases](../../releases) tab (or build from source).
-3. Create a folder named `sd:/switch/th10/` and copy the following into it:
+3. Create the folder `sd:/switch/touhou/touhou10/` and copy the following into it:
 
 ```text
-sd:/switch/th10/
+sd:/switch/touhou/touhou10/
     ├── touhou10.nro          # Nintendo Switch homebrew executable
     ├── th10.dat              # Main game archive (v1.00a)
     ├── thbgm.dat             # Background music archive
@@ -44,6 +54,8 @@ sd:/switch/th10/
 ```
 
 `thbgm.dat` is optional (the game runs silent without it); `msgothic.ttc` is recommended for the most faithful text, with the console system fonts as fallback.
+
+**Recommended place: `sd:/switch/touhou/touhou10/`.** Keeping every Touhou port in one `sd:/switch/touhou/` folder (`touhou6`, `touhou7`, `touhou8` …) is much tidier than a separate folder per game. Other places still work: the port first looks in its own folder (wherever the NRO is), then for a `th10` / `touhou10` folder (any capitalisation) directly on the SD card, in `switch/`, `touhou/`, `switch/touhou/`, `games/` or `roms/`. If `th10.dat` isn't found anywhere, the port shows where it looked instead of closing.
 
 ### 2. Launching
 
@@ -56,14 +68,16 @@ Run `touhou10.nro` from the **Homebrew Menu (hbmenu)**, **Sphaira launcher**, or
 | Nintendo Switch Button | Action |
 | :--- | :--- |
 | **Left Stick / D-Pad** | Character Movement |
-| **A** | Bomb / Cancel |
 | **B** | Shoot / Confirm |
-| **L** (or left-stick click) | Focus (Precision Slow-Motion Movement) |
-| **R** | Skip Dialogue (hold) |
-| **X** | Enter |
-| **Y** | Retry |
+| **A** | Bomb / Cancel |
+| **L / ZL** | Focus (Precision Slow-Motion Movement) |
+| **R / ZR** | Skip Dialogue (hold) |
 | **+ (Plus)** | Pause / In-Game Menu |
+| **X** | Enter (while not bound in Key Config) |
+| **Y** | Retry (while not bound in Key Config) |
 | **− (Minus)** | Screenshot (saved next to the game data) |
+
+**The same default layout in every Touhou Switch port:** B shoots, A bombs, L/ZL focuses, R/ZR skips dialogue, + pauses. These are only defaults — the Switch buttons act as the game's own gamepad, so the in-game **Key Config** can rebind them, and **Default** there brings this layout back. The D-Pad and sticks only move — they can never be picked as a button. Key Config numbers: 0 B, 1 A, 2 L/ZL, 3 +, 4 R/ZR, 5 X, 6 Y.
 
 ---
 
@@ -118,6 +132,7 @@ The game logic is the architecture-independent C++ from upstream, shipped here a
 | `src/host_graphics.cpp` / `src/gl_renderer.cpp` | D3D9-style device on OpenGL ES 3 |
 | `src/host_audio.cpp` / `src/audio_mixer.cpp` | SFX + BGM mixer |
 | `src/host_fonts.cpp` | CP932/GBK text via FreeType (MS Gothic or system fonts) |
+| `src/host_resample.cpp` | native, bit-exact copy of the game's triangle-filter resample (dialogue text); the generated `f731` calls it first |
 | `src/host_input.cpp` | keyboard + gamepad mapping |
 | `src/host_time.cpp` | monotonic clock / RNG seed |
 | `platform/switch/icon.jpg` | 256×256 NRO icon (the original game cover) |

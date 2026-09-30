@@ -178,36 +178,36 @@ void switch_pad_to_codes(const SwitchPadState& pad,
     if (right) out.insert("ArrowRight");
     if (up) out.insert("ArrowUp");
     if (down) out.insert("ArrowDown");
-    if (pad.a) out.insert("KeyZ");      // shot / confirm
-    if (pad.b) out.insert("KeyX");      // bomb / cancel
-    if (pad.l) out.insert("ShiftLeft");  // focus
-    if (pad.r) out.insert("ControlLeft");  // skip
-    if (pad.plus) out.insert("Escape");  // pause
-    if (pad.x) out.insert("Enter");
-    if (pad.y) out.insert("KeyR");  // retry
+    // r4: shot / bomb / focus / pause / skip are no longer mirrored as fixed
+    // keyboard keys. They reach the game only as gamepad buttons (see
+    // switch_pad_to_inputpad), so TH10's own Key Config can remap them; the
+    // default config gives the same layout as before.
+    // pad.x / pad.y are SDL's positional X / Y: the Switch's Y / X buttons.
+    if (pad.y) out.insert("Enter");  // Switch X
+    if (pad.x) out.insert("KeyR");   // Switch Y: retry
     if (pad.minus) out.insert("KeyP");  // screenshot
 }
 
 InputPad switch_pad_to_inputpad(const SwitchPadState& pad) {
+    // Button numbers as TH10 sees them (Key Config shows these numbers).
+    // TH10's default pad config is shot=0, bomb=1, slow=2, pause=3, skip=4,
+    // so a fresh th10.cfg gives the classic layout: B shot, A bomb,
+    // L focus, + pause, R skip. Remapping in Key Config then just works.
+    // (pad.a/pad.b are SDL's positional A/B: the Switch's B/A buttons.)
     InputPad p;
-    p.buttons.assign(17, 0);
-    p.buttons[0] = pad.a;
-    p.buttons[1] = pad.b;
-    p.buttons[2] = pad.x;
-    p.buttons[3] = pad.y;
-    p.buttons[4] = pad.l;
-    p.buttons[5] = pad.r;
-    p.buttons[6] = pad.zl;
-    p.buttons[7] = pad.zr;
-    p.buttons[8] = pad.minus;
-    p.buttons[9] = pad.plus;
-    p.buttons[10] = pad.lstick;
-    p.buttons[11] = pad.rstick;
-    p.buttons[12] = pad.dup;
-    p.buttons[13] = pad.ddown;
-    p.buttons[14] = pad.dleft;
-    p.buttons[15] = pad.dright;
-    p.buttons[16] = 0;  // home (system-reserved)
+    p.buttons.assign(16, 0);
+    p.buttons[0] = pad.a;                 // Switch B
+    p.buttons[1] = pad.b;                 // Switch A
+    p.buttons[2] = pad.l || pad.zl;       // L / ZL
+    p.buttons[3] = pad.plus;              // +
+    p.buttons[4] = pad.r || pad.zr;       // R / ZR
+    p.buttons[5] = pad.y;                 // Switch X
+    p.buttons[6] = pad.x;                 // Switch Y
+    // ZL / ZR act as L / R (like the other Touhou ports); − is the
+    // screenshot key and not assignable.
+    // r5: the d-pad and sticks (clicks included) are never buttons, so Key
+    // Config cannot pick them. TH10 reads direction from the stick axes, and
+    // the host mirrors the d-pad and stick as arrow keys.
     p.axes = {pad.lx, pad.ly, 0.0f, 0.0f};
     return p;
 }

@@ -153,6 +153,7 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
 
 int main(int argc, char** argv) {
     Args args;
+    bool data_given = false, save_given = false;
     for (int i = 1; i < argc; i++) {
         std::string a = argv[i];
         auto val = [&](const char* name) -> const char* {
@@ -162,10 +163,13 @@ int main(int argc, char** argv) {
             return nullptr;
         };
         const char* v = nullptr;
-        if ((v = val("--data")))
+        if ((v = val("--data"))) {
             args.data_dir = v;
-        else if ((v = val("--save")))
+            data_given = true;
+        } else if ((v = val("--save"))) {
             args.save_dir = v;
+            save_given = true;
+        }
         else if ((v = val("--frames")))
             args.frames = atoi(v);
         else if ((v = val("--wav")))
@@ -193,6 +197,59 @@ int main(int argc, char** argv) {
     }
     if (!args.wav.empty()) args.no_audio = true;
     std::vector<PressRange> presses = parse_press(args.press);
+#ifdef __SWITCH__
+    if (!data_given) {
+        // The folder the NRO was launched from wins (hbmenu passes the NRO
+        // path as argv[0]); then th10 / touhou10 folders (any capitalisation,
+        // FAT is case-insensitive) on the SD card, in switch/, in a shared
+        // touhou/ or switch/touhou/ folder, or in games/ and roms/.
+        const char* archive = args.chinese ? "th10c.dat" : "th10.dat";
+        std::vector<std::string> candidates;
+        if (argc > 0 && argv[0]) {
+            std::string nro = argv[0];
+            size_t slash = nro.find_last_of('/');
+            if (slash != std::string::npos) candidates.push_back(nro.substr(0, slash));
+        }
+        for (const char* root : {"sdmc:/switch/", "sdmc:/", "sdmc:/touhou/",
+                                 "sdmc:/switch/touhou/", "sdmc:/games/", "sdmc:/roms/"})
+            for (const char* name : {"th10", "touhou10", "touhou 10"})
+                candidates.push_back(std::string(root) + name);
+        std::string found;
+        for (const auto& c : candidates) {
+            std::string path = c + "/" + archive;
+            if (FILE* f = fopen(path.c_str(), "rb")) {
+                fclose(f);
+                found = c;
+                break;
+            }
+        }
+        if (found.empty()) {
+            // No archive anywhere: say so instead of quitting silently.
+            consoleInit(nullptr);
+            PadState pad;
+            padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+            padInitializeDefault(&pad);
+            printf("\n  Touhou 10: Mountain of Faith - Switch port\n\n"
+                   "  %s was not found.\n\n"
+                   "  Put th10.dat and thbgm.dat (and msgothic.ttc) next to\n"
+                   "  touhou10.nro, or in one of these folders:\n"
+                   "    sd:/switch/th10/   sd:/th10/   sd:/touhou10/\n"
+                   "    sd:/touhou/th10/   sd:/switch/touhou/touhou10/ ...\n\n"
+                   "  Press + to exit.\n",
+                   archive);
+            consoleUpdate(nullptr);
+            while (appletMainLoop()) {
+                padUpdate(&pad);
+                if (padGetButtonsDown(&pad) & HidNpadButton_Plus) break;
+                consoleUpdate(nullptr);
+            }
+            consoleExit(nullptr);
+            return 0;
+        }
+        args.data_dir = found;
+        if (!save_given) args.save_dir = found;
+    }
+#endif
 
     uint32_t sdl_flags = 0;
     if (!args.headless) sdl_flags |= SDL_INIT_VIDEO;
@@ -346,6 +403,9 @@ int main(int argc, char** argv) {
     }
 
     if (args.fast) time_set_virtual(true);
+    // r4: with a display, vsync is the only clock (see host_time.cpp).
+    const bool frame_clock = !args.fast && !args.headless;
+    if (frame_clock) time_set_frame_clock(true);
 
     // ---- startup sequence (native-game.mjs) ----
     uint32_t params = graphics_host.alloc(56);
@@ -486,6 +546,7 @@ int main(int argc, char** argv) {
         uint32_t elapsed = (uint32_t)floor(audio_rem);
         audio_rem -= elapsed;
         w2c_th100x2Dgame_audio_advance(&wasm, audio, elapsed);
+        if (frame_clock) time_begin_frame();
         uint32_t result = w2c_th100x2Dgame_application_step(&wasm, app);
         uint32_t error = w2c_th100x2Dgame_application_error(&wasm, app);
         if (error) {
@@ -531,7 +592,11 @@ int main(int argc, char** argv) {
             static int grace = 0;
             if (++grace > 30) break;
         }
-        if (!args.fast) {
+        // r4: no sleep after the swap when vsync paces the loop. Sleeping to
+        // the game's own deadline here left the next frame only the part of
+        // the 16.7 ms period after that deadline (the Kanako-card hitches);
+        // the step now starts right after the vsync with the full budget.
+        if (!args.fast && !frame_clock) {
             double delay = w2c_th100x2Dgame_application_delay(&wasm, app);
             int ms = th10::frame_sleep_ms(delay);
             if (ms > 0) SDL_Delay((Uint32)ms);

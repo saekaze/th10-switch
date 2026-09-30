@@ -13,7 +13,9 @@ set(WASM2C_SOURCES
 )
 # th10_wasm.c is ~9MB of generated C. -O3 + debug info OOMs a 2GB box;
 # -O2 -g0 is the same codegen class without blowing RAM. Host code stays -O3.
-set_source_files_properties(${WASM2C_SOURCES} PROPERTIES COMPILE_FLAGS "-w -O2 -g0")
+# -ffp-contract=off: wasm float operations round one at a time. GCC's AArch64
+# default (fast) would fuse multiply-adds and change the game's float results.
+set_source_files_properties(${WASM2C_SOURCES} PROPERTIES COMPILE_FLAGS "-w -O2 -g0 -ffp-contract=off")
 
 set(HOST_SOURCES
     src/main.cpp
@@ -25,7 +27,11 @@ set(HOST_SOURCES
     src/host_audio.cpp
     src/audio_mixer.cpp
     src/host_fonts.cpp
+    src/host_resample.cpp
 )
+# Native copy of the game's triangle-filter resample: must round exactly like
+# the module (no fused multiply-add).
+set_source_files_properties(src/host_resample.cpp PROPERTIES COMPILE_FLAGS "-ffp-contract=off")
 
 add_executable(touhou10 ${WASM2C_SOURCES} ${HOST_SOURCES})
 target_include_directories(touhou10 PRIVATE wasm2c src)
@@ -97,7 +103,7 @@ if(NINTENDO_SWITCH)
     nx_generate_nacp(OUTPUT "${CMAKE_BINARY_DIR}/touhou10-base.nacp"
         NAME "Touhou 10: Mountain of Faith"
         AUTHOR "ZUN / Team Shanghai Alice"
-        VERSION "1.00a-r3")
+        VERSION "1.00a-r5")
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/touhou10.nacp"
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/scripts/nacp_lang.py"
                 "${CMAKE_BINARY_DIR}/touhou10-base.nacp" "${CMAKE_BINARY_DIR}/touhou10.nacp"

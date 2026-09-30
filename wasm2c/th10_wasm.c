@@ -43183,7 +43183,18 @@ u32 w2c_th100x2Dgame_f730(w2c_th100x2Dgame* instance, u32 var_p0, u32 var_p1, u3
   return var_i0;
 }
 
+/* Switch port: TextureResample::triangle first tries the native fast path in
+   src/host_resample.cpp (bit-exact in the game's single/nearest x87 mode);
+   everything else runs the original module code below. */
+int th10_native_triangle(w2c_th100x2Dgame*, u32*, u32, u32, u32, u32, u32, u32, u32);
+static u32 w2c_th100x2Dgame_f731_wasm(w2c_th100x2Dgame*, u32, u32, u32, u32, u32, u32, u32);
 u32 w2c_th100x2Dgame_f731(w2c_th100x2Dgame* instance, u32 var_p0, u32 var_p1, u32 var_p2, u32 var_p3, u32 var_p4, u32 var_p5, u32 var_p6) {
+  u32 result;
+  if (th10_native_triangle(instance, &result, var_p0, var_p1, var_p2, var_p3, var_p4, var_p5, var_p6)) return result;
+  return w2c_th100x2Dgame_f731_wasm(instance, var_p0, var_p1, var_p2, var_p3, var_p4, var_p5, var_p6);
+}
+
+static u32 w2c_th100x2Dgame_f731_wasm(w2c_th100x2Dgame* instance, u32 var_p0, u32 var_p1, u32 var_p2, u32 var_p3, u32 var_p4, u32 var_p5, u32 var_p6) {
   u32 var_l7 = 0, var_l8 = 0, var_l9 = 0, var_l10 = 0, var_l11 = 0, var_l12 = 0, var_l13 = 0, var_l14 = 0, 
       var_l15 = 0, var_l16 = 0, var_l17 = 0, var_l18 = 0, var_l19 = 0, var_l20 = 0, var_l21 = 0, var_l22 = 0, 
       var_l23 = 0, var_l24 = 0, var_l25 = 0, var_l26 = 0, var_l27 = 0, var_l28 = 0, var_l29 = 0, var_l30 = 0, 
