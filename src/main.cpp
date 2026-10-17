@@ -259,17 +259,6 @@ int main(int argc, char** argv) {
         host_log("SDL_Init failed: %s", SDL_GetError());
         return 1;
     }
-#ifdef __SWITCH__
-    // 1785 MHz CPU. Handheld/docked GPU clocks stay under Horizon.
-    if (R_SUCCEEDED(clkrstInitialize())) {
-        ClkrstSession cpu{};
-        if (R_SUCCEEDED(clkrstOpenSession(&cpu, PcvModuleId_CpuBus, 3))) {
-            clkrstSetClockRate(&cpu, 1785000000);
-            clkrstCloseSession(&cpu);
-        }
-        clkrstExit();
-    }
-#endif
 
     SDL_Window* window = nullptr;
     SDL_GLContext glctx = nullptr;

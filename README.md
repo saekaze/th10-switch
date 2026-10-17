@@ -61,6 +61,8 @@ sd:/switch/touhou/touhou10/
 
 Run `touhou10.nro` from the **Homebrew Menu (hbmenu)**, **Sphaira launcher**, or a home screen forwarder.
 
+> 💡 **CPU clock:** the port runs at the Switch's stock clocks. TH10 benefits from a higher CPU clock — if dense patterns slow down, raise it with a tool such as sys-clk (1785 MHz is plenty).
+
 ---
 
 ## 🕹 Controls
