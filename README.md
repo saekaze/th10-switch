@@ -11,7 +11,7 @@ Mountain of Faith is my favourite Touhou game, so it gets the port it deserves. 
 
 Because the game logic is a clean reimplementation rather than a decompiled EXE, this port has **none of the bad-decompile bugs**
 
-Companion to the [Touhou 6](https://github.com/saekaze/th06-switch), [Touhou 7](https://github.com/saekaze/th07-switch), [Touhou 8](https://github.com/saekaze/th08-switch), [Touhou 9](https://github.com/saekaze/th09-switch) and [Touhou 11](https://github.com/saekaze/th11-switch) Switch ports, with the same `touhou10.nro` + `sd:/switch/touhou/touhou10/` layout.
+Companion to the [Touhou Switch ports](https://github.com/saekaze/touhou-switch), with the same `touhou10.nro` + `sd:/switch/touhou/touhou10/` layout.
 
 ---
 
