@@ -1,5 +1,34 @@
 # Changelog — Touhou 10 Switch port
 
+## Touhou 10: Mountain of Faith — Switch Port r6
+
+## What's new in r6
+
+* **Native build:** upstream's C++ (game/, platform/) is now compiled
+  directly for ARM64 with `TH_NATIVE_PLATFORM` instead of being run as a
+  wasm module converted by wasm2c. Every memory access in r5 went through
+  the wasm linear-memory layer; now it is plain native code. Measured on
+  Kanako's last Lunatic spell card with identical input, the game's CPU
+  work per frame is about 60% lower (about 45% lower including the
+  graphics driver's CPU work), and fast-forwarded replays run about 33%
+  faster in the heaviest moments.
+* **64-bit fixes:** upstream assumes 32-bit pointers. File data that the
+  original relocates in place (`.sht` shot tables, the STD object table)
+  is now resolved without overwriting 32-bit fields, sprites get their
+  initial flags by name instead of a 32-bit byte offset, and score unlocks
+  (stage slots, clear counts, Extra and Music Room flags) are written
+  through `ScoreData` fields. A 32-bit build of the same sources renders
+  every compared frame pixel-identically and writes a byte-identical
+  `scoreth10.dat`.
+* **Stock CPU clock:** the 1785 MHz request is gone.
+* **Long sessions:** memory and frame cost stay flat across repeated
+  restarts, returns to the title and character changes.
+* `th10-switch.log` gets a timing line every 600 played frames.
+* Same data folder, `th10.cfg`, `scoreth10.dat`, replays and button
+  layout as r5. Display version `1.00a-r6`.
+
+---
+
 ## Touhou 10: Mountain of Faith — Switch Port r5
 
 ## What's new in r5
