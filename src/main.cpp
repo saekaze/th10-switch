@@ -129,17 +129,24 @@ bool load_script(const char* path){
 void save_shot(const std::string& tag);
 bool god_mode=false;
 // After each scripted step: keep the player invulnerable, and time spell cards.
+u64 pending_spell_shot=0;
+// TH10_REALTIME runs the real frame loop with an emulated 60 Hz vsync;
+// TH10_SLOWDOWN=k stretches every tick k times to approximate a slower CPU.
+struct Emulation {bool realtime=false;double slowdown=1,origin=0,last_shown=0;} emulate;
 struct SpellTiming {i32 number=-1;u64 started=0;double total=0,worst=0;u32 frames=0;} spell_timing;
 void script_frame_done(double step){
     auto* world=session&&session->app?session->app->world:nullptr;if(!world)return;auto& actors=world->actors;
     if(god_mode&&actors.player){auto& t=actors.player->invulnerability;t.current=t.previous=100;t.fractional=100;}
     auto& t=spell_timing;const i32 active=actors.spell&&(actors.spell->spell_flags&1)?actors.spell->number:-1;
+    if(step>.03)std::printf("[frame %llu] slow step %.1f ms (spell %d)\n",static_cast<unsigned long long>(script_frame),step*1000,t.number);
     if(active!=t.number){
-        if(t.number>=0&&t.frames)std::printf("[frame %llu] spell %d ended: %u frames, step avg %.2f ms, worst %.2f ms\n",static_cast<unsigned long long>(script_frame),t.number,t.frames,t.total*1000/t.frames,t.worst*1000);
+        if(t.number>=0&&t.frames)std::printf("[frame %llu] spell %d ended (%s): %u frames, step avg %.2f ms, worst %.2f ms\n",static_cast<unsigned long long>(script_frame),t.number,actors.spell&&(actors.spell->spell_flags&2)?"captured":"not captured",t.frames,t.total*1000/t.frames,t.worst*1000);
+        if(t.number>=0)pending_spell_shot=script_frame+20;
         t={};t.number=active;t.started=script_frame;
         if(active>=0){std::printf("[frame %llu] spell %d started:",static_cast<unsigned long long>(script_frame),active);for(const char* c=actors.spell->name;*c;++c)std::printf(" %02x",static_cast<u8>(*c));std::printf("\n");}
     }
     if(active>=0){t.total+=step;t.worst=std::max(t.worst,step);++t.frames;}
+    if(pending_spell_shot&&script_frame>=pending_spell_shot){save_shot("after-spell");pending_spell_shot=0;}
 }
 // Stage slots as GameProgression::unlock_stage marks them, ranks 0-3, stages 1-6.
 void unlock_practice(){
@@ -247,14 +254,21 @@ int main(int argc,char** argv){
 #ifndef __SWITCH__
     if(const char* path=std::getenv("TH10_SCRIPT")){if(!load_script(path)){std::fprintf(stderr,"cannot read %s\n",path);return 1;}scripted=true;std::setvbuf(stdout,nullptr,_IOLBF,0);}
     if(const char* fixed=std::getenv("TH10_SEED"))seed=u32(std::strtoul(fixed,nullptr,0));
+    emulate.realtime=std::getenv("TH10_REALTIME")!=nullptr;
+    if(const char* k=std::getenv("TH10_SLOWDOWN"))emulate.slowdown=std::max(1.,std::atof(k));emulate.origin=host::seconds();
 #endif
     Application* app=open_game(seed);
     if(!app){fatal(failure);return 1;}
     // Vsync paces the loop at the panel's 60 Hz: one game tick per swap, the
-    // th10-switch r4 frame clock. Measured time only adds catch-up ticks
-    // after a real stall (bounded to 4 like upstream FrameCadence).
+    // th10-switch r4 frame clock. A frame that runs long slows the game down
+    // for that moment, as on PC; there are no catch-up ticks. Catching up
+    // ran up to 4 ticks per frame after any long one, so heavy moments (a
+    // spell card capture turns every bullet into an item) got heavier still
+    // and the picture only changed every 4-6 vsyncs: the capture freeze.
+    // Only when swaps return far faster than 60 Hz (no vsync) does the clock
+    // pace the ticks instead.
     constexpr double interval=touhou::sdl::FrameCadence::interval;
-    double debt=0,previous=host::seconds(),audio_remainder=0;bool running=true;int result=0;
+    double unpaced=0,previous=host::seconds(),audio_remainder=0;bool running=true;int result=0;
     while(running&&!result
 #ifdef __SWITCH__
           &&appletMainLoop()
@@ -275,18 +289,34 @@ int main(int argc,char** argv){
             const double deadline=host::seconds()+.012;
             do{app->world->advance_loading_step();}while(app->world->loading&&host::seconds()<deadline);
             app->sync_views();
-            if(app->world->loading){app->engine.device.present_frame();sdl_audio_pump();debt=0;continue;}
+            if(app->world->loading){app->engine.device.present_frame();sdl_audio_pump();unpaced=0;continue;}
         }
-        debt+=delta;u32 ticks=u32(std::floor((debt+interval*.5)/interval));ticks=std::min(4u,std::max(ticks,1u));
-        debt=std::clamp(debt-ticks*interval,-interval*.5,.1);
+        u32 ticks=1;
+        if(delta<interval*.5){unpaced+=delta;if(unpaced<interval)ticks=0;else unpaced-=interval;}else unpaced=0;
 #ifndef __SWITCH__
-        if(scripted){ticks=1;++script_frame;if(!script_step())break;}
+        if(scripted&&!emulate.realtime)ticks=1; // scripted runs go as fast as possible
+#endif
+        if(!ticks){sdl_audio_pump();SDL_Delay(1);continue;}
+#ifndef __SWITCH__
+        if(scripted){++script_frame;if(!script_step())break;}
 #endif
         if(renderer)renderer->defer=true;
         const double started=host::seconds();
-        for(u32 n=0;n<ticks&&!result;++n){native_input(app);result=app->step(true);}
+        for(u32 n=0;n<ticks&&!result;++n){native_input(app);
+#ifndef __SWITCH__
+            const double tick_start=host::seconds();
+#endif
+            result=app->step(true);
+#ifndef __SWITCH__
+            if(emulate.slowdown>1){const double until=host::seconds()+(host::seconds()-tick_start)*(emulate.slowdown-1);while(host::seconds()<until){}}
+#endif
+        }
         const double stepped=host::seconds();
         if(renderer){renderer->commit();renderer->defer=false;}
+#ifndef __SWITCH__
+        if(emulate.realtime){const double next=emulate.origin+std::ceil((host::seconds()-emulate.origin)/interval)*interval;while(host::seconds()<next){}
+            const double shown=host::seconds();if(emulate.last_shown>0&&shown-emulate.last_shown>.04)std::printf("[frame %llu] display gap %.0f ms after %u ticks\n",static_cast<unsigned long long>(script_frame),(shown-emulate.last_shown)*1000,ticks);emulate.last_shown=shown;}
+#endif
         sdl_audio_pump();
         timing.add(stepped-started,host::seconds()-stepped);if(timing.due())timing.report();
 #ifndef __SWITCH__
