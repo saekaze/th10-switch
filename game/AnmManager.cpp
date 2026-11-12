@@ -36,8 +36,11 @@ i32 AnmManager::remove(AnmVm& vm,AnmAllocationEnvironment& env){
     return 0;
 }
 u32 AnmManager::create(AnmFile& file,i32 script,u32 tag,AnimationPlacement placement,AnmEnvironment& animations,AnmAllocationEnvironment& allocation){
+    return create_vm(file,script,tag,placement,animations,allocation).id;
+}
+AnmVm& AnmManager::create_vm(AnmFile& file,i32 script,u32 tag,AnimationPlacement placement,AnmEnvironment& animations,AnmAllocationEnvironment& allocation){
     auto& vm=*allocate(allocation);vm.owner_tag=tag;vm.flags|=0x40000000;
-    file.prepare_script(vm,script,animations,started_scripts);return insert(vm,placement);
+    file.prepare_script(vm,script,animations,started_scripts);insert(vm,placement);return vm;
 }
 u32 AnmManager::create_at(AnmFile& file,i32 script,const Vec3& position,bool playfield,AnimationPlacement placement,AnmEnvironment& animations,AnmAllocationEnvironment& allocation){
     auto& vm=*allocate(allocation);vm.owner_tag=0;vm.flags|=0x40000000;

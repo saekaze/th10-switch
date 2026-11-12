@@ -57,7 +57,10 @@ void AnimationEngine::change_draw_mode(AnmVm& vm){AnmDistortion::initialize(vm,*
 void* AnimationEngine::allocate_geometry(u32 bytes){return std::malloc(bytes);}
 AnmVm* AnimationEngine::spawn_child(AnmVm& parent,i32 script,u32 mode){
     const auto placement=mode==88?AnimationPlacement::WorldBack:mode==90?AnimationPlacement::UiBack:mode==91?AnimationPlacement::WorldFront:AnimationPlacement::UiFront;
-    u32 id=manager.create(*parent.animation_file,script,parent.owner_tag,placement,*this,*this);return manager.registry.find_and_clear(id);
+    // The original looks the new child up by id, walking every live VM; at a
+    // spell capture that is hundreds of spawns over thousands of VMs. The id
+    // is new and unique, so that lookup always finds the VM just created.
+    return &manager.create_vm(*parent.animation_file,script,parent.owner_tag,placement,*this,*this);
 }
 AnmVm* AnimationEngine::allocate_animation(){return static_cast<AnmVm*>(std::malloc(sizeof(AnmVm)));}
 void AnimationEngine::release_memory(void* p){std::free(p);}
