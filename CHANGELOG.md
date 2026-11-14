@@ -39,7 +39,7 @@
   software floating point: about 27 ms per line on a desktop CPU and far more
   on the Switch, so skipping several lines in a row stalled the game. The
   port now runs that filter natively (`src/host_resample.cpp`), the same fast
-  path upstream YomotsuHisami/th10 adopted later: in the game's x87 mode
+  path upstream Ritosa2333/th10 adopted later: in the game's x87 mode
   (single precision, round to nearest) plain float math rounds identically.
   About 0.7 ms per line now. Host test `tests/test_resample.cpp` runs the
   module's own filter and the native one on the same inputs: byte-identical
@@ -70,7 +70,7 @@ replay format and pixels are unchanged.
   deadline, so that vsync showed the previous frame again. The host now
   feeds the game a vsync-driven clock (exactly one game frame per presented
   frame, never behind real time), the same "scheduled tick" upstream
-  YomotsuHisami/th10 adopted. Host test `tests/test_pacing.cpp` replays the
+  Ritosa2333/th10 adopted. Host test `tests/test_pacing.cpp` replays the
   game's deadline logic: 0 stutters per 30 minutes at 60.00 / 60.05 /
   59.94 Hz, versus 16 / 80 / 1 with the old clock.
 * **Performance in busy scenes and heavy spell cards (Kanako's last card is the easiest place to see it):** the old loop slept until

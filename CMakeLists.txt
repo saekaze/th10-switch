@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-# Upstream TH10 (YomotsuHisami/th10, th10_web/cpp): game logic in game/, the
+# Upstream TH10 (Ritosa2333/th10, th10_web/cpp): game logic in game/, the
 # browser platform layer in platform/, the x87 SoftFloat in rebuild/, the
 # shared GLES renderer, and the Switch host in src/ (replacing cpp/sdl).
 file(GLOB GAME_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/game/*.cpp ${CMAKE_SOURCE_DIR}/platform/*.cpp)

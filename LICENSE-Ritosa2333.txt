@@ -1,12 +1,12 @@
-YomotsuHisami's TH08 / TH09 / TH10 / TH11 reconstructions are MIT-licensed.
-YomotsuHisami confirmed this on GitHub in October 2026:
-https://github.com/YomotsuHisami/th10/issues/3
+Ritosa2333's TH08 / TH09 / TH10 / TH11 reconstructions are MIT-licensed.
+Ritosa2333 confirmed this on GitHub in October 2026:
+https://github.com/Ritosa2333/th10/issues/3
 Their repositories don't ship a LICENSE file, so the licence
 text is reproduced here for the upstream code included in this port.
 
 MIT License
 
-Copyright (c) 2026 YomotsuHisami
+Copyright (c) 2026 Ritosa2333
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

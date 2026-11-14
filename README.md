@@ -7,7 +7,7 @@
 
 A native homebrew port of ZUN's 2007 bullet hell danmaku classic **Touhou 10: Mountain of Faith** for the **Nintendo Switch** (Horizon OS).
 
-Mountain of Faith is my favourite Touhou game, so it gets the port it deserves. This build runs the clean C++ reimplementation from [YomotsuHisami/th10](https://github.com/YomotsuHisami/th10), compiled directly to native ARM64 and driven by an SDL2 host on an OpenGL ES 3 context — no WebAssembly layer, no Linux, Box64 or Wine involved.
+Mountain of Faith is my favourite Touhou game, so it gets the port it deserves. This build runs the clean C++ reimplementation from [Ritosa2333/th10](https://github.com/Ritosa2333/th10), compiled directly to native ARM64 and driven by an SDL2 host on an OpenGL ES 3 context — no WebAssembly layer, no Linux, Box64 or Wine involved.
 
 Because the game logic is a clean reimplementation rather than a decompiled EXE, this port has **none of the bad-decompile bugs**
 
@@ -123,7 +123,7 @@ The game logic is upstream's architecture-independent C++, built natively with `
 
 | Path | Purpose |
 | :--- | :--- |
-| `game/` | YomotsuHisami's reconstruction of the original game code |
+| `game/` | Ritosa2333's reconstruction of the original game code |
 | `platform/` | upstream's platform layer (application flow, title, world, audio, fonts) |
 | `rebuild/` | x87 80-bit float emulation (Berkeley SoftFloat) for bit-exact replays |
 | `portable/` | shared GLES 3 renderer, input mapping and numeric helpers |
@@ -144,9 +144,9 @@ The game logic is upstream's architecture-independent C++, built natively with `
 ## 🤝 Credits & Acknowledgments
 
 * **ZUN / Team Shanghai Alice** — original creator and developer of the Touhou Project series.
-* **[YomotsuHisami](https://github.com/YomotsuHisami/th10)** — the clean-room TH10 C++ reimplementation this port is built on.
+* **[Ritosa2333](https://github.com/Ritosa2333/th10)** — the clean-room TH10 C++ reimplementation this port is built on.
 * **John R. Hauser** — Berkeley SoftFloat. **David Reid** — miniaudio.
 * **Switchbrew & devkitPro Team** — the open-source `libnx` SDK and Switch toolchain.
 * Port developed with AI assistance.
 
-**Licensing:** the Switch-only files (`scripts/`, `platform/switch/`, `tests/`, build files) are CC0 1.0 (see `LICENSE`). The game and platform code (`game/`, `platform/`, `portable/`, `rebuild/machine.hpp`) and the hosts in `src/`, which are adapted from upstream's SDL host, come from YomotsuHisami and are under the **MIT** licence ([confirmed by the author](https://github.com/YomotsuHisami/th10/issues/3)), not `LICENSE` (see [`LICENSE-YomotsuHisami.txt`](LICENSE-YomotsuHisami.txt)). Berkeley SoftFloat (`rebuild/third_party/softfloat.c`) is BSD-3-Clause and miniaudio / stb (`portable/sdl/third_party/`) are public domain or MIT-0; see their file headers.
+**Licensing:** the Switch-only files (`scripts/`, `platform/switch/`, `tests/`, build files) are CC0 1.0 (see `LICENSE`). The game and platform code (`game/`, `platform/`, `portable/`, `rebuild/machine.hpp`) and the hosts in `src/`, which are adapted from upstream's SDL host, come from Ritosa2333 and are under the **MIT** licence ([confirmed by the author](https://github.com/Ritosa2333/th10/issues/3)), not `LICENSE` (see [`LICENSE-Ritosa2333.txt`](LICENSE-Ritosa2333.txt)). Berkeley SoftFloat (`rebuild/third_party/softfloat.c`) is BSD-3-Clause and miniaudio / stb (`portable/sdl/third_party/`) are public domain or MIT-0; see their file headers.
