@@ -51,12 +51,16 @@ std::string failure;
 
 // Frame timing for th10-switch.log, averaged over 600 played frames: the game
 // step (logic and draw calls) and the present (GPU submit and vsync wait).
+// "late" counts frames that took over 1.5 refreshes (a missed vsync), and the
+// worst single step and frame show short dips the averages hide.
 struct FrameTiming {
-    double step=0,present=0,since=0;u32 frames=0;
-    void add(double s,double p){step+=s;present+=p;if(!frames++)since=host::seconds()-s-p;}
+    double step=0,present=0,since=0,worst_step=0,worst_frame=0;u32 frames=0,late=0;
+    void add(double s,double p,double frame){step+=s;present+=p;if(!frames++)since=host::seconds()-s-p;
+        worst_step=std::max(worst_step,s);worst_frame=std::max(worst_frame,frame);if(frame>1.5/60)++late;}
     bool due() const {return frames>=600;}
     void report(){const double elapsed=host::seconds()-since;
-        host::log("timing (ms/frame): step %.2f, present %.2f, fps %.1f",step*1000/frames,present*1000/frames,elapsed>0?frames/elapsed:0.);
+        host::log("timing (ms/frame): step %.2f, present %.2f, fps %.1f, late %u, worst step %.1f, worst frame %.1f",
+            step*1000/frames,present*1000/frames,elapsed>0?frames/elapsed:0.,late,worst_step*1000,worst_frame*1000);
         *this={};}
 } timing;
 
@@ -318,7 +322,7 @@ int main(int argc,char** argv){
             const double shown=host::seconds();if(emulate.last_shown>0&&shown-emulate.last_shown>.04)std::printf("[frame %llu] display gap %.0f ms after %u ticks\n",static_cast<unsigned long long>(script_frame),(shown-emulate.last_shown)*1000,ticks);emulate.last_shown=shown;}
 #endif
         sdl_audio_pump();
-        timing.add(stepped-started,host::seconds()-stepped);if(timing.due())timing.report();
+        timing.add(stepped-started,host::seconds()-stepped,delta);if(timing.due())timing.report();
 #ifndef __SWITCH__
         if(scripted)script_frame_done(stepped-started);
 #endif

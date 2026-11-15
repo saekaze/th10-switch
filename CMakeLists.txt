@@ -49,6 +49,12 @@ if(NINTENDO_SWITCH)
         message(FATAL_ERROR "platform/switch/icon.jpg (256x256 JPEG) not found.")
     endif()
     target_compile_definitions(th10_core PUBLIC __SWITCH__)
+    # Link-time optimisation: lets the compiler inline across files (every
+    # game float operation is a small out-of-line function in Arithmetic.cpp).
+    # Same flags at link time, where LTO generates the code: -ffp-contract=off
+    # keeps float results bit-identical.
+    target_compile_options(th10_core PUBLIC -flto=auto)
+    target_link_options(touhou10 PRIVATE -flto=auto -O2 -ffp-contract=off -fno-strict-aliasing)
     target_include_directories(th10_core PUBLIC
         ${TH_DEVKITPRO}/portlibs/switch/include
         ${TH_DEVKITPRO}/portlibs/switch/include/SDL2
