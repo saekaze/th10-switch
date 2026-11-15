@@ -60,6 +60,8 @@ struct AnmManager {
     u32 insert(AnmVm& vm,AnimationPlacement placement) noexcept;
     i32 remove(AnmVm& vm,AnmAllocationEnvironment& environment);
     u32 create(AnmFile& file,i32 script,u32 tag,AnimationPlacement placement,AnmEnvironment& animations,AnmAllocationEnvironment& allocation);
+    // Switch port: create() returning the new VM itself (its id is vm.id).
+    AnmVm& create_vm(AnmFile& file,i32 script,u32 tag,AnimationPlacement placement,AnmEnvironment& animations,AnmAllocationEnvironment& allocation);
     u32 create_at(AnmFile& file,i32 script,const Vec3& position,bool playfield_coordinates,AnimationPlacement placement,AnmEnvironment& animations,AnmAllocationEnvironment& allocation);
 };
 static_assert(offsetof(AnmManager,pool)==0x68);
