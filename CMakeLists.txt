@@ -67,7 +67,7 @@ if(NINTENDO_SWITCH)
     nx_generate_nacp(OUTPUT "${CMAKE_BINARY_DIR}/touhou10-base.nacp"
         NAME "Touhou 10: Mountain of Faith"
         AUTHOR "ZUN / Team Shanghai Alice"
-        VERSION "1.00a-r6")
+        VERSION "1.00a-r7")
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/touhou10.nacp"
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/scripts/nacp_lang.py"
                 "${CMAKE_BINARY_DIR}/touhou10-base.nacp" "${CMAKE_BINARY_DIR}/touhou10.nacp"

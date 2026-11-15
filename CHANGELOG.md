@@ -1,5 +1,25 @@
 # Changelog — Touhou 10 Switch port
 
+## Touhou 10: Mountain of Faith — Switch Port r7
+
+## What's new in r7
+
+* **No more freeze when a spell card is captured:** a capture turns every
+  bullet on screen into an item at once. The frame clock used to add up to
+  4 catch-up game ticks after any long frame, so that moment got heavier
+  still and the picture only changed every 4–6 screen refreshes (about
+  10–15 FPS). The game now runs exactly one tick per refresh: a frame that
+  runs long slows the game down for that moment, as on PC, and the worst
+  moment of a capture holds about 48 FPS on the Switch (about 4× the r6
+  frame rate there).
+* **Lighter spawns:** each animation spawned at a capture no longer walks
+  every live animation to find itself again; the new one is returned
+  directly. Game behaviour is unchanged.
+* Same data folder, `th10.cfg`, `scoreth10.dat`, replays and button layout
+  as r6. Display version `1.00a-r7`.
+
+---
+
 ## Touhou 10: Mountain of Faith — Switch Port r6
 
 ## What's new in r6

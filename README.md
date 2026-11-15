@@ -15,11 +15,11 @@ Companion to the [Touhou Switch ports](https://github.com/saekaze/touhou-switch)
 
 ---
 
-## 🆕 What's New in 1.00a-r6
+## 🆕 What's New in 1.00a-r7
 
-* 🚀 **Native build, much faster:** the game code is now compiled straight to ARM64 instead of going through a WebAssembly layer. In the heaviest spell cards the game's own work per frame is about **60% lower**, the hardest moments run about **33% faster** when fast-forwarding a replay, and the frame drops in busy boss fights are gone.
-* 🔋 **Stock CPU clock:** r6 runs at the Switch's normal CPU speed (r5 asked for 1785 MHz) and is still faster.
-* 🕒 **Stays smooth in long sessions:** memory use and frame cost stay flat through long play with many restarts, returns to the title and character changes.
+* 🧊 **No more freeze when you capture a spell card:** the worst moment of a capture now holds about **48 FPS** instead of stalling at about 10–15 FPS — roughly **4× (+300%)** the frame rate of r6.
+* ⏱️ **Slowdown like on PC:** a heavy frame briefly slows the game instead of skipping ahead, so no frames get dropped in bursts mid-pattern.
+* 🚀 **From r6:** native ARM64 build at the stock CPU clock — about **60% less** game work per frame in the heaviest spell cards, and smooth through long sessions.
 * 💾 **Nothing to migrate:** same folder, same `th10.cfg`, `scoreth10.dat` and replays, same controls. Just replace `touhou10.nro`.
 
 ---
